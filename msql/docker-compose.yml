@@ -3,7 +3,6 @@ services:
   mysql-server:
     image: mysql:8.0
     hostname: mysql-server
-    restart: always
     networks:
       - zbx_net
     command:
@@ -22,9 +21,8 @@ services:
 
   zabbix-server-mysql:
     # image: zabbix/zabbix-server-mysql:alpine-latest
-    image: zabbix/zabbix-server-mysql:ubuntu-6.2-latest
-    hostname: zabbix
-    restart: always
+    image: zabbix/zabbix-server-mysql:alpine-6.4-latest
+    hostname: zabbix-server-mysql
     networks:
       - zbx_net
     ports:
@@ -51,8 +49,7 @@ services:
       - mysql-server
 
   zabbix-web-nginx-mysql:
-    image: zabbix/zabbix-web-nginx-mysql:ubuntu-6.2-latest
-    restart: always
+    image: zabbix/zabbix-web-nginx-mysql:alpine-6.4-latest
     networks:
       - zbx_net
     ports:
@@ -64,7 +61,7 @@ services:
       - /zabbix-nginx/nginx:/etc/ssl/nginx:ro
       - /zabbix-nginx/modules/:/usr/share/zabbix/modules/:ro
     environment:
-      - ZBX_SERVER_HOST=zabbix
+      - ZBX_SERVER_HOST=zabbix-server-mysql
       - DB_SERVER_HOST=mysql-server
       - MYSQL_DATABASE=zabbixdb
       - MYSQL_USER=zabbix
@@ -75,22 +72,11 @@ services:
       - zabbix-server-mysql
 
   zabbix-java-gateway:
-    image: zabbix/zabbix-java-gateway:ubuntu-6.2-latest
-    restart: always
+    image: zabbix/zabbix-java-gateway:alpine-6.4-latest
     networks:
       - zbx_net
     ports:
       - 10052:10052
-
-  # zabbix-agent:   # Zabbix agent service that tracks usage and send to zabbix server
-  #   image: zabbix/zabbix-agent:ubuntu-6.2-latest
-  #   privileged: true   #access mode for allowing resource access
-  #   network_mode: "host"
-  #   ports:
-  #     - 10050:10050
-  #   restart: unless-stopped
-  #   environment:
-  #     - ZBX_SERVER_HOST=127.0.0.1 #the IP/Dns of Zabbix server
 
 networks:
   zbx_net:
