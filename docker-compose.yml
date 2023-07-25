@@ -21,7 +21,6 @@ services:
       - /zabbix-mysql:/var/lib/mysql:rw
 
   zabbix-server-mysql:
-    # image: zabbix/zabbix-server-mysql:alpine-latest
     image: zabbix/zabbix-server-mysql:ubuntu-6.2-latest
     hostname: zabbix
     restart: always
@@ -52,6 +51,7 @@ services:
 
   zabbix-web-nginx-mysql:
     image: zabbix/zabbix-web-nginx-mysql:ubuntu-6.2-latest
+    hostname: zabbix-web
     restart: always
     networks:
       - zbx_net
@@ -82,16 +82,30 @@ services:
     ports:
       - 10052:10052
 
-  # zabbix-agent:   # Zabbix agent service that tracks usage and send to zabbix server
-  #   image: zabbix/zabbix-agent:ubuntu-6.2-latest
-  #   privileged: true   #access mode for allowing resource access
-  #   network_mode: "host"
+  grafana:
+    image: bitnami/grafana:9
+    hostname: grafana
+    ports:
+      - 3000:3000
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "bitnami"
+      # GF_RENDERING_SERVER_URL: "http://grafana-image-renderer:8081/render"
+      GF_RENDERING_CALLBACK_URL: "http://grafana:3000/"
+      GF_INSTALL_PLUGINS: alexanderzobnin-zabbix-app
+    networks:
+      - zbx_net
+
+  # grafana-image-renderer:
+  #   image: bitnami/grafana-image-renderer:3
+  #   hostname: grafana-image-renderer
   #   ports:
-  #     - 10050:10050
-  #   restart: unless-stopped
+  #     - 8081:8081
   #   environment:
-  #     - ZBX_SERVER_HOST=127.0.0.1 #the IP/Dns of Zabbix server
+  #     HTTP_HOST: 0.0.0.0
+  #     HTTP_PORT: 8081
+  #     ENABLE_METRICS: true
+  #   networks:
+  #     - zbx_net
 
 networks:
   zbx_net:
-    # driver: bridge
