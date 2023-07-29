@@ -83,23 +83,45 @@ services:
       - 10052:10052
 
   grafana:
+    # image: bitnami/grafana:9
     image: grafana/grafana-enterprise:9.5.6
+    # image: grafana/grafana:9.5.6
     hostname: grafana
     container_name: grafana
+    # user: "root:root"
+    # user: "1001"
     user: '0'
     restart: always
     ports:
       - 3000:3000
     environment:
+      # GF_SECURITY_ADMIN_PASSWORD: "bitnami"
+      # GF_RENDERING_SERVER_URL: "http://grafana-image-renderer:8081/render"
+      # GF_RENDERING_CALLBACK_URL: "http://grafana:3000/"
       GF_SERVER_ROOT_URL: "http://grafana:3000/"
       GF_INSTALL_PLUGINS: alexanderzobnin-zabbix-app
     volumes:
       - grafana_data:/var/lib/grafana
+      # - grafana_data:/opt/bitnami/grafana:rw
+      # - grafana_tmp:/opt/bitnami/grafana/tmp:rw
     networks:
       - zbx_net
+
+  # grafana-image-renderer:
+  #   image: bitnami/grafana-image-renderer:3
+  #   hostname: grafana-image-renderer
+  #   ports:
+  #     - 8081:8081
+  #   environment:
+  #     HTTP_HOST: 0.0.0.0
+  #     HTTP_PORT: 8081
+  #     ENABLE_METRICS: true
+  #   networks:
+  #     - zbx_net
 
 networks:
   zbx_net:
 
 volumes:
   grafana_data:
+  # grafana_tmp:
